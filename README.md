@@ -1,1 +1,1 @@
-Blog's backend by Python and Django 
+Blog's backend by Python and Django +
