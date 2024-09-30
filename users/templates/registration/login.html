@@ -3,7 +3,6 @@
 {% block content %}
 
 {% if form.errors %}
-<h1>TEST</h1>
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
 
@@ -11,7 +10,7 @@
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Login</button>
-    <input type="hidden" name="text" value="{% url 'learning_logs:index' %}" />
+    <input type="hidden" name="next" value="{% url 'learning_logs:index' %}" />
 </form>
 
 {% endblock content %}
