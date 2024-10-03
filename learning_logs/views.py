@@ -1,9 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect   
 from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
 
-
+def check_topic_owner(self,request):
+    """Проверяет, является ли пользователь владельцем темы."""
+    if self.owner != request.user:
+        raise Http404
+    
 def index(request):
     """Домашняя страница приложения Learning Log"""
     return render(request, 'learning_logs/index.html')
@@ -19,9 +24,13 @@ def topics(request):
 def topic(request, topic_id):
     """Выводит одну тему и все ее записи."""
     topic = Topic.objects.get(id=topic_id)
+    # Проверка того, что тема принадлежит текущему пользователю.
+    check_topic_owner(topic, request)
+    
     entries = topic.entry_set.order_by('-date_added')
     context = {'topic': topic, 'entries': entries}
     return render(request, 'learning_logs/topic.html', context)
+
 @login_required
 def new_topic(request):
     """Определяет новую тему."""
@@ -32,12 +41,15 @@ def new_topic(request):
         # Отправлены данные POST; обработать данные.
         form = TopicForm(data = request.POST)
         if form.is_valid():
-            form.save()
+            new_topic = form.save(commit=False)
+            new_topic.owner = request.user
+            new_topic.save()
             return redirect('learning_logs:topics')
         
     # Вывести пустую или недействительную форму.
     context = {'form': form}
     return render(request, 'learning_logs/new_topic.html', context)
+
 @login_required
 def new_entry(request,  topic_id):
     """Добавляет новую запись по конкретной теме."""
@@ -57,11 +69,15 @@ def new_entry(request,  topic_id):
     # Вывести пустую или недействительную форму.
     context = {'topic': topic, 'form': form}
     return render(request, 'learning_logs/new_entry.html', context)
+ 
 @login_required
-def edit_entry(request,  entry_id):
+def edit_entry(request, entry_id):
     """Редактирует существующую запись."""
     entry = Entry.objects.get(id=entry_id)
     topic = entry.topic
+
+    check_topic_owner(topic, request)
+    
     if request.method != 'POST':
         # Данные не отправлялись; создается форма с текущими данными.
         form = EntryForm(instance=entry)
