@@ -50,26 +50,9 @@
             {% block page_header %}{% endblock page_header %}
         </div>
         <div>
-            {% block content %}{% endblock content %}
+            {% block basecontent %}{% endblock basecontent %}
         </div>
     </main>
 </body>
 
 </html>
-
-
-
-
-<!-- <p>
-    <a href="{% url 'learning_logs:index' %}">Learning Log</a> -
-    <a href="{% url 'learning_logs:topics' %}">Topics</a> -
-    {% if user.is_authenticated %}
-        Hello, {{ user.username }}.
-        <div><a href="{% url 'users:logout' %}">log out</a></div>
-    {% else %}
-    <a href="{% url 'users:register' %}">Register</a> -
-    <div><a href="{% url 'users:login' %}">log in</a></div>
-    {% endif %}
-</p>
-
-{% block content %}{% endblock content %} -->
